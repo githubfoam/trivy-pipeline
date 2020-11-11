@@ -19,7 +19,7 @@ matrix:
         global:
           - COMMIT=${TRAVIS_COMMIT::8}      
       before_install:
-        - docker build -t trivy-ci-test:$COMMIT .
+        - docker build -t trivy-ci-test:${COMMIT} .
         - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
       script:
       - docker images ls
@@ -47,7 +47,8 @@ matrix:
         - git clone https://github.com/aquasecurity/trivy
         - cd trivy/cmd/trivy/
         - export GO111MODULE=on
-        - go install
+        # verifying github.com/docker/docker@v1.4.2-0.20190924003213-a8608b5b67c7: checksum mismatch
+        # - go install
       after_success:
         - deactivate
 
@@ -63,6 +64,7 @@ matrix:
         - pip install -r requirements.txt
       script:
         - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+        - trivy image python:3.4-alpine
       after_success:
         - deactivate
         
