@@ -19,7 +19,7 @@ matrix:
         global:
           - COMMIT=${TRAVIS_COMMIT::8}      
       before_install:
-        - docker build -t trivy-ci-test:${COMMIT} .
+        - docker build -t . trivy-ci-test:${COMMIT}
         - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
       script:
       - docker images ls
