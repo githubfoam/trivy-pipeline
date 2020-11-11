@@ -1,0 +1,104 @@
+---
+sudo: required
+dist: bionic
+notifications:
+  slack:
+    on_failure: always
+matrix:
+  fast_finish: true
+  include:
+
+    - name: "deploy trivy-ci wo snaps on bionic amd64"
+      dist: bionic
+      arch: amd64
+      # language: python
+      sudo: false
+      services:
+      - docker
+      env:
+        global:
+          - COMMIT=${TRAVIS_COMMIT::8}      
+      before_install:
+        - docker build -t trivy-ci-test:${COMMIT} .
+        - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+      script:
+      - docker images ls
+      - trivy --exit-code 0 --severity CRITICAL --no-progress trivy-ci-test:${COMMIT}
+      cache:
+        directories:
+          - $HOME/.cache/trivy
+      after_success:
+        - deactivate
+
+    - name: "deploy trivy wo snaps on bionic amd64"
+      dist: bionic
+      arch: amd64
+      language: python
+      sudo: false
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+        - pip install -r requirements.txt
+      script:
+        - apt-get install -qqy wget apt-transport-https gnupg lsb-release
+        - wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+        - echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        - apt-get update -qq
+        - apt-get install -qqy trivy
+        - trivy image python:3.4-alpine
+      after_success:
+        - deactivate
+
+    - name: "deploy trivy wo homebrew on macOS 10.15.4 osx xcode11.5"
+      os: osx
+      osx_image: xcode11.5
+      language: shell
+      addons:
+        homebrew:
+          packages:
+          - curl
+          update: true
+      before_install:
+        - pip install virtualenv
+        - virtualenv -p $(which python2) ~venvpy2
+        - source ~venvpy2/bin/activate
+      script:
+        - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sh -s -- -b /usr/local/bin
+        - trivy image python:3.4-alpine
+      after_success:
+        - deactivate
+
+    - name: "deploy trivy w homebrew tap on macOS 10.15.4 osx xcode11.5"
+      os: osx
+      osx_image: xcode11.5
+      language: shell
+      addons:
+        homebrew:
+          taps: aquasecurity/trivy/trivy
+          packages:
+            - trivy
+          update: true
+      before_install:
+        - pip install virtualenv
+        - virtualenv -p $(which python2) ~venvpy2
+        - source ~venvpy2/bin/activate
+      script:
+        - brew install aquasecurity/trivy/trivy
+        - trivy image python:3.4-alpine
+      after_success:
+        - deactivate
+
+    - name: "deploy trivy w homebrew on macOS 10.15.4 osx xcode11.5"
+      os: osx
+      osx_image: xcode11.5
+      language: shell
+      before_install:
+        - pip install virtualenv
+        - virtualenv -p $(which python2) ~venvpy2
+        - source ~venvpy2/bin/activate
+      script:
+        - brew install aquasecurity/trivy/trivy
+        - trivy image python:3.4-alpine
+      after_success:
+        - deactivate
