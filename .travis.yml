@@ -19,17 +19,53 @@ matrix:
         global:
           - COMMIT=${TRAVIS_COMMIT::8}      
       before_install:
-        - docker build -t trivy-ci-test:$TRAVIS_COMMIT .
+        - docker build -t trivy-ci-test:$COMMIT .
         - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
       script:
       - docker images ls
-      - trivy --exit-code 0 --severity CRITICAL --no-progress trivy-ci-test:$TRAVIS_COMMIT
+      - trivy --exit-code 0 --severity CRITICAL --no-progress trivy-ci-test:$COMMIT
       cache:
         directories:
           - $HOME/.cache/trivy
       after_success:
         - deactivate
 
+# https://github.com/aquasecurity/trivy
+    - name: "Install From source trivy wo snaps on bionic amd64"
+      dist: bionic
+      arch: amd64
+      language: python
+      sudo: false
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+        - pip install -r requirements.txt
+      script:
+        - mkdir -p $GOPATH/src/github.com/aquasecurity
+        - cd $GOPATH/src/github.com/aquasecurity
+        - git clone https://github.com/aquasecurity/trivy
+        - cd trivy/cmd/trivy/
+        - export GO111MODULE=on
+        - go install
+      after_success:
+        - deactivate
+
+    - name: "Install Script trivy wo snaps on bionic amd64"
+      dist: bionic
+      arch: amd64
+      language: python
+      sudo: false
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+        - pip install -r requirements.txt
+      script:
+        - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+      after_success:
+        - deactivate
+        
     - name: "deploy trivy wo snaps on bionic amd64"
       dist: bionic
       arch: amd64
@@ -45,8 +81,8 @@ matrix:
         - sudo apt-get install -qqy wget apt-transport-https gnupg lsb-release
         - wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
         - echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
-        - apt-get update -qq
-        - apt-get install -qqy trivy
+        - sudo apt-get update -qq
+        - sudo apt-get install -qqy trivy
         - trivy image python:3.4-alpine
       after_success:
         - deactivate
