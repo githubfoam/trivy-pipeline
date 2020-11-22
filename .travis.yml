@@ -9,27 +9,27 @@ matrix:
   include:
 
 
-    - name: "deploy trivy-ci wo snaps on bionic amd64"
-      dist: bionic
-      arch: amd64
-      # language: python
-      sudo: false
-      services:
-      - docker
-      env:
-        global:
-          - COMMIT=${TRAVIS_COMMIT::8}      
-      before_install:
-        - docker build -t trivy-ci-test:${COMMIT} .
-        - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
-      script:
-      - docker images ls
-      - trivy --exit-code 0 --severity CRITICAL --no-progress trivy-ci-test:$COMMIT
-      cache:
-        directories:
-          - $HOME/.cache/trivy
-      after_success:
-        - deactivate
+    # - name: "deploy trivy-ci wo snaps on bionic amd64"
+    #   dist: bionic
+    #   arch: amd64
+    #   # language: python
+    #   sudo: false
+    #   services:
+    #   - docker
+    #   env:
+    #     global:
+    #       - COMMIT=${TRAVIS_COMMIT::8}      
+    #   before_install:
+    #     - docker build -t trivy-ci-test:${COMMIT} .
+    #     - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+    #   script:
+    #   - docker images ls
+    #   - trivy --exit-code 0 --severity CRITICAL --no-progress trivy-ci-test:$COMMIT
+    #   cache:
+    #     directories:
+    #       - $HOME/.cache/trivy
+    #   after_success:
+    #     - deactivate
 
 # https://github.com/aquasecurity/trivy
     - name: "Install From source trivy wo snaps on bionic amd64"
@@ -108,5 +108,6 @@ matrix:
         - docker pull python:3.4-alpine
         - docker images -a | grep "3.4-alpine" | awk '{print $3}'
         - docker image ls
+        - container-diff analyze $(docker images -a | grep "3.4-alpine" | awk '{print $3}')
       after_success:
         - deactivate
