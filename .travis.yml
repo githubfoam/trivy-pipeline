@@ -91,7 +91,7 @@ matrix:
         - deactivate
 
 # https://github.com/GoogleContainerTools/container-diff
-    - name: "deploy container-diff(single image) wo snaps on bionic amd64"
+    - name: "deploy container-diff analyze (single image) wo snaps on bionic amd64"
       dist: bionic
       arch: amd64
       services:
@@ -111,6 +111,7 @@ matrix:
         # By default, with no --type flag specified, container-diff will run image size analysis
         - container-diff analyze python:3.4-alpine
         - container-diff analyze python:3.4-alpine --type=history
+        # 2020/11/22 13:15:34 Unable to read "/home/travis/.docker/config.json": open /home/travis/.docker/config.json: no such file or directory
         - sudo container-diff analyze python:3.4-alpine --type=file
         - container-diff analyze python:3.4-alpine --type=size
         # - container-diff analyze python:3.4-alpine --type=rpm #ERRO[0001] Could not detect RPM binary in unpacked image python:3.4-alpine
@@ -123,7 +124,7 @@ matrix:
         - deactivate
 
 # https://github.com/GoogleContainerTools/container-diff
-    - name: "deploy container-diff wo snaps on bionic amd64"
+    - name: "deploy container-diff diff wo snaps on bionic amd64"
       dist: bionic
       arch: amd64
       services:
@@ -141,7 +142,7 @@ matrix:
         - docker images -a | grep "3.4-alpine" | awk '{print $3}'
         - docker image ls
         # By default, with no --type flag specified, container-diff will run image size analysis
-        - container-diff analyze alpine:latest debian:bullseye-slim
+        - container-diff diff alpine:latest debian:bullseye-slim
         # - container-diff analyze python:3.4-alpine --type=history
         # - container-diff analyze python:3.4-alpine --type=file
         # - container-diff analyze python:3.4-alpine --type=size
