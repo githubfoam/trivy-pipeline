@@ -8,6 +8,7 @@ matrix:
   fast_finish: true
   include:
 
+
     - name: "deploy trivy-ci wo snaps on bionic amd64"
       dist: bionic
       arch: amd64
@@ -89,58 +90,22 @@ matrix:
       after_success:
         - deactivate
 
-    - name: "deploy trivy wo homebrew on macOS 10.15.4 osx xcode11.5"
-      os: osx
-      osx_image: xcode11.5
-      language: shell
-      addons:
-        homebrew:
-          packages:
-          - curl
-          update: true
+# https://github.com/GoogleContainerTools/container-diff
+    - name: "deploy container-diff wo snaps on bionic amd64"
+      dist: bionic
+      arch: amd64
+      services:
+      - docker 
+      language: python
+      sudo: false
       before_install:
-        - pip install virtualenv
-        - virtualenv -p $(which python2) ~venvpy2
-        - source ~venvpy2/bin/activate
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+        - pip install -r requirements.txt
       script:
-        - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sh -s -- -b /usr/local/bin
-        # failed to download vulnerability DB
-        # - trivy image python:3.4-alpine
-      after_success:
-        - deactivate
-
-    - name: "deploy trivy w homebrew tap on macOS 10.15.4 osx xcode11.5"
-      os: osx
-      osx_image: xcode11.5
-      language: shell
-      addons:
-        homebrew:
-          taps: aquasecurity/trivy/trivy
-          packages:
-            - trivy
-          update: true
-      before_install:
-        - pip install virtualenv
-        - virtualenv -p $(which python2) ~venvpy2
-        - source ~venvpy2/bin/activate
-      script:
-        - brew install aquasecurity/trivy/trivy
-        # failed to download vulnerability DB
-        # - trivy image python:3.4-alpine
-      after_success:
-        - deactivate
-
-    - name: "deploy trivy w homebrew on macOS 10.15.4 osx xcode11.5"
-      os: osx
-      osx_image: xcode11.5
-      language: shell
-      before_install:
-        - pip install virtualenv
-        - virtualenv -p $(which python2) ~venvpy2
-        - source ~venvpy2/bin/activate
-      script:
-        - brew install aquasecurity/trivy/trivy
-        # failed to download vulnerability DB
-        # - trivy image python:3.4-alpine
+        - curl -LO https://storage.googleapis.com/container-diff/latest/container-diff-linux-amd64 && chmod +x container-diff-linux-amd64 && sudo mv container-diff-linux-amd64 /usr/local/bin/container-diff
+        - docker pull python:3.4-alpine
+        - docker image ls
       after_success:
         - deactivate
