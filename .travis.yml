@@ -143,14 +143,14 @@ matrix:
         - docker image ls
         # By default, with no --type flag specified, container-diff will run image size analysis
         - container-diff diff alpine:latest debian:bullseye-slim
-        # - container-diff analyze python:3.4-alpine --type=history
-        # - container-diff analyze python:3.4-alpine --type=file
-        # - container-diff analyze python:3.4-alpine --type=size
-        # - container-diff analyze python:3.4-alpine --type=rpm
-        # - container-diff analyze python:3.4-alpine --type=pip
-        # - container-diff analyze python:3.4-alpine --type=apt
-        # - container-diff analyze python:3.4-alpine --type=node 
-        # - container-diff analyze python:3.4-alpine --type=apt --type=node 
-        # - container-diff analyze python:3.4-alpine --type=history --type=pip --type=node        
+        - container-diff diff alpine:latest debian:bullseye-slim --type=history
+        - container-diff diff alpine:latest debian:bullseye-slim --type=file
+        - container-diff diff alpine:latest debian:bullseye-slim --type=size
+        - container-diff diff alpine:latest debian:bullseye-slim --type=rpm
+        - container-diff diff alpine:latest debian:bullseye-slim --type=pip
+        - container-diff diff alpine:latest debian:bullseye-slim --type=apt
+        - container-diff diff alpine:latest debian:bullseye-slim --type=node 
+        - container-diff diff alpine:latest debian:bullseye-slim --type=apt --type=node 
+        - container-diff diff alpine:latest debian:bullseye-slim --type=history --type=pip --type=node        
       after_success:
         - deactivate        
