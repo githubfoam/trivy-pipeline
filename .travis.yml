@@ -108,6 +108,6 @@ matrix:
         - docker pull python:3.4-alpine
         - docker images -a | grep "3.4-alpine" | awk '{print $3}'
         - docker image ls
-        - container-diff analyze $(docker images -a | grep "3.4-alpine" | awk '{print $3}')
+        - container-diff analyze python:3.4-alpine
       after_success:
         - deactivate
